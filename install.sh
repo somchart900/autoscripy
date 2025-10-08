@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -e
+# ตรวจสอบ Ubuntu version
+UBUNTU_VERSION=$(grep VERSION_ID /etc/os-release | cut -d '"' -f2)
+echo "🔍 ตรวจสอบ Ubuntu version: $UBUNTU_VERSION"
 
+if [[ "$UBUNTU_VERSION" != "24" && "$UBUNTU_VERSION" != "25" ]]; then
+  echo "for ubuntu 24/25  ⚠️ version ($UBUNTU_VERSION) script is exit"
+  exit 1
+fi
 # === CONFIG ===
 PORT=8000
 DOC_ROOT="/var/www/html"
@@ -27,9 +34,9 @@ echo "🔍 ตรวจพบ PHP เวอร์ชัน: $PHP_VERSION"
 
 # === เปิดโมดูล Apache ที่จำเป็น ===
 if sudo a2enmod "php${PHP_VERSION}" >/dev/null 2>&1; then
-  echo "✅ เปิดโมดูล php${PHP_VERSION} แล้ว"
+  echo "✅ open module php${PHP_VERSION} "
 else
-  echo "⚠️ ไม่พบ php${PHP_VERSION} module, ลองเปิด mod-php เอง"
+  echo "⚠️ not found php${PHP_VERSION} module, manual mod-php "
   sudo a2enmod php || true
 fi
 sudo a2enmod rewrite
@@ -37,7 +44,7 @@ sudo systemctl restart apache2
 
 # === ปรับ php.ini ===
 PHP_INI=$(php -i | grep "Loaded Configuration File" | awk '{print $5}')
-echo "🔧 แก้ค่า php.ini: $PHP_INI"
+echo "🔧 edit php.ini: $PHP_INI"
 
 # แก้ค่า memory, upload, post, execution time
 sudo sed -i 's/^\s*memory_limit\s*=.*/memory_limit = 256M/' $PHP_INI
@@ -46,7 +53,7 @@ sudo sed -i 's/^\s*post_max_size\s*=.*/post_max_size = 32M/' $PHP_INI
 sudo sed -i 's/^\s*max_execution_time\s*=.*/max_execution_time = 60/' $PHP_INI
 
 PHP_APACHE_INI=$(find /etc/php/ -type f -path "*/apache2/php.ini" | head -n1)
-echo "🔧 แก้ค่า Apache php.ini: $PHP_APACHE_INI"
+echo "🔧 edit Apache php.ini: $PHP_APACHE_INI"
 
 sudo sed -i 's/^\s*memory_limit\s*=.*/memory_limit = 256M/' $PHP_APACHE_INI
 sudo sed -i 's/^\s*upload_max_filesize\s*=.*/upload_max_filesize = 32M/' $PHP_APACHE_INI
@@ -70,8 +77,8 @@ sudo systemctl restart apache2
 
 # === แสดงผลสำเร็จ ===
 IP=$(hostname -I | awk '{print $1}')
-echo "✅ ติดตั้งเสร็จแล้ว"
-echo "🌐 เปิดเว็บ: http://$IP:$PORT"
+echo "✅ success install"
+echo "🌐 this open : http://$IP:$PORT"
 echo "📂 Document Root: $DOC_ROOT"
 echo "🧰 PHP Extensions:"
 php -m | grep -E 'curl|sqlite3|mbstring|zip|xml|gd|intl'
