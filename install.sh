@@ -32,16 +32,18 @@ else
   echo "⚠️ ไม่พบ php${PHP_VERSION} module, ลองเปิด mod-php เอง"
   sudo a2enmod php || true
 fi
-
 sudo a2enmod rewrite
 sudo systemctl restart apache2
 
 # === ปรับ php.ini ===
 PHP_INI=$(php -i | grep "Loaded Configuration File" | awk '{print $5}')
-sudo sed -i 's/^memory_limit = .*/memory_limit = 256M/' $PHP_INI
-sudo sed -i 's/^upload_max_filesize = .*/upload_max_filesize = 32M/' $PHP_INI
-sudo sed -i 's/^post_max_size = .*/post_max_size = 32M/' $PHP_INI
-sudo sed -i 's/^max_execution_time = .*/max_execution_time = 60/' $PHP_INI
+echo "🔧 แก้ค่า php.ini: $PHP_INI"
+
+# แก้ค่า memory, upload, post, execution time
+sudo sed -i 's/^\s*memory_limit\s*=.*/memory_limit = 256M/' $PHP_INI
+sudo sed -i 's/^\s*upload_max_filesize\s*=.*/upload_max_filesize = 32M/' $PHP_INI
+sudo sed -i 's/^\s*post_max_size\s*=.*/post_max_size = 32M/' $PHP_INI
+sudo sed -i 's/^\s*max_execution_time\s*=.*/max_execution_time = 60/' $PHP_INI
 
 # === เปิด AllowOverride เพื่อใช้ .htaccess ได้ ===
 sudo sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
@@ -53,7 +55,7 @@ phpinfo();
 ?>
 EOL
 
-# === Restart ===
+# === Restart Apache ===
 sudo systemctl restart apache2
 
 # === แสดงผลสำเร็จ ===
@@ -63,5 +65,6 @@ echo "🌐 เปิดเว็บ: http://$IP:$PORT"
 echo "📂 Document Root: $DOC_ROOT"
 echo "🧰 PHP Extensions:"
 php -m | grep -E 'curl|sqlite3|mbstring|zip|xml|gd|intl'
+
 
 
