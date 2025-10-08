@@ -45,6 +45,17 @@ sudo sed -i 's/^\s*upload_max_filesize\s*=.*/upload_max_filesize = 32M/' $PHP_IN
 sudo sed -i 's/^\s*post_max_size\s*=.*/post_max_size = 32M/' $PHP_INI
 sudo sed -i 's/^\s*max_execution_time\s*=.*/max_execution_time = 60/' $PHP_INI
 
+# === ปรับ php.ini สำหรับ Apache แบบหาเวอร์ชันอัตโนมัติ ===
+PHP_APACHE_INI=$(php -r 'echo php_ini_loaded_file();')
+echo "🔧 แก้ค่า Apache php.ini: $PHP_APACHE_INI"
+
+sudo sed -i 's/^\s*memory_limit\s*=.*/memory_limit = 256M/' $PHP_APACHE_INI
+sudo sed -i 's/^\s*upload_max_filesize\s*=.*/upload_max_filesize = 32M/' $PHP_APACHE_INI
+sudo sed -i 's/^\s*post_max_size\s*=.*/post_max_size = 32M/' $PHP_APACHE_INI
+sudo sed -i 's/^\s*max_execution_time\s*=.*/max_execution_time = 60/' $PHP_APACHE_INI
+
+
+
 # === เปิด AllowOverride เพื่อใช้ .htaccess ได้ ===
 sudo sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
