@@ -2,10 +2,10 @@
 set -e
 # ตรวจสอบ Ubuntu version
 UBUNTU_VERSION=$(grep VERSION_ID /etc/os-release | cut -d '"' -f2)
-echo "🔍 ตรวจสอบ Ubuntu version: $UBUNTU_VERSION"
+echo "🔍 check Ubuntu version: $UBUNTU_VERSION"
 
-if [[ "$UBUNTU_VERSION" != "24" && "$UBUNTU_VERSION" != "25" ]]; then
-  echo "for ubuntu 24/25  ⚠️ version ($UBUNTU_VERSION) script is exit"
+if [[ ! "$UBUNTU_VERSION" =~ ^(24|25)\. ]]; then
+  echo "for Ubuntu 24/25 only ⚠️ version ($UBUNTU_VERSION) script is exit"
   exit 1
 fi
 # === CONFIG ===
